@@ -37,6 +37,14 @@ model_choice = st.sidebar.selectbox("Choix du modèle", ["Régression Linéaire"
 # Bouton de prédiction
 predict_btn = st.sidebar.button("🔮 Prédire le Salaire")
 
+# Données fictives de salaires moyens par pays et département
+market_salary_data = {
+    "France": {"IT": 4500, "HR": 3800, "Sales": 4000, "Finance": 4700},
+    "USA": {"IT": 5500, "HR": 4300, "Sales": 4600, "Finance": 6000},
+    "Germany": {"IT": 5000, "HR": 4200, "Sales": 4400, "Finance": 5500},
+    "UK": {"IT": 4800, "HR": 4000, "Sales": 4300, "Finance": 5200}
+}
+
 # Préparation des données (features d'entrée encodées à la main)
 def encode_inputs():
     # Encodage simple à la main
@@ -75,6 +83,27 @@ if predict_btn:
     prediction = model.predict(input_data)[0]
 
     st.success(f"💰 Salaire mensuel prédit : **{prediction:.2f} €**")
+
+    # Récupération du salaire du marché
+    market_salary = market_salary_data[country][department]
+
+    # Affichage de la comparaison
+    st.markdown("---")
+    st.subheader("📊 Comparaison avec le marché")
+
+    delta = prediction - market_salary
+    if delta > 0:
+        st.info(f"✅ Le salaire prédit est supérieur de **{delta:.2f} €** à la moyenne du marché (**{market_salary} €**).")
+    elif delta < 0:
+        st.warning(f"⚠️ Le salaire prédit est inférieur de **{-delta:.2f} €** à la moyenne du marché (**{market_salary} €**).")
+    else:
+        st.success("🎯 Le salaire prédit correspond exactement à la moyenne du marché.")
+
+    # Graphique simple
+    st.bar_chart(pd.DataFrame({
+        "Salaire (€)": [prediction, market_salary]
+    }, index=["Prédit", "Marché"]))
+
 
 # Signature
 st.markdown("---")
